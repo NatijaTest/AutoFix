@@ -2604,13 +2604,23 @@ def favicon():
 # ----------------------------------------------------------------------
 #  Entry point
 # ----------------------------------------------------------------------
+
+# Запускаем Telegram-бота и при Gunicorn на Skyhost
+if BOT_TOKEN:
+    threading.Thread(
+        target=bot_loop,
+        name="tg-bot",
+        daemon=True
+    ).start()
+    log.info("Telegram bot thread started")
+else:
+    log.warning("BOT_TOKEN is missing")
+
 def main():
-    if not BOT_TOKEN or not BOT_USERNAME:
-        log.warning("BOT_TOKEN / BOT_USERNAME not set - Telegram login will not work")
+    if not BOT_USERNAME:
+        log.warning("BOT_USERNAME not set")
     if not GEMINI_API_KEY:
-        log.warning("GEMINI_API_KEY not set - AI diagnostics will not work")
-    if BOT_TOKEN:
-        threading.Thread(target=bot_loop, name="tg-bot", daemon=True).start()
+        log.warning("GEMINI_API_KEY not set")
     log.info("AutoFix AI: http://%s:%d", HOST, PORT)
     app.run(host=HOST, port=PORT, threaded=True, use_reloader=False)
 
